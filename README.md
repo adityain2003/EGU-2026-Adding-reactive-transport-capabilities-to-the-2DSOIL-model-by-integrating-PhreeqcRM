@@ -1,0 +1,1 @@
+# EGU-2026-Adding-reactive-transport-capabilities-to-the-2DSOIL-model-by-integrating-PhreeqcRM
