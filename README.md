@@ -233,6 +233,62 @@ every step in mmol/L for all five species.
 
 ---
 
+## Running the pre-built `2dMAIZSIM.exe`
+
+Both codebases ship a pre-built executable so you can reproduce the runs
+without rebuilding. The executable reads **all of its inputs from the current
+working directory** (run controllers, `.pqi` chemistry runfile, PHREEQC
+databases, the fertigation schedule, the `TEST_CASE_BM*/` folders, etc.) and
+writes its outputs into the same place.
+
+### From a terminal or Explorer
+
+Just launch the exe from inside its own `Debug/` directory:
+
+```bash
+# Codebase 1
+cd "1_BENCHMARKING_STUDY/Maizsim_PhreeqcRM/soil source/x64/Debug"
+./2dMAIZSIM.exe
+
+# Codebase 2
+cd "2_CATION_EXCHANGE_PROBLEM/Maizsim_PhreeqcRM/soil source/x64/Debug"
+./2dMAIZSIM.exe
+```
+
+(or double-click `2dMAIZSIM.exe` in Explorer — Windows uses the file's parent
+folder as CWD, which is what we want).
+
+### From Visual Studio (F5 / Ctrl+F5) — required one-time fix
+
+VS's default debug **Working Directory** is `$(ProjectDir)` — i.e.
+`soil source/` — but the inputs and runtime DLLs live one level deeper, in
+`$(IntDir)` = `soil source/x64/Debug/`. So an unmodified F5 launch will
+fail to find `run.dat`, `phreeqc.dat`, `PHREEQCRM_RUNFILE_*.pqi`,
+`FERTIGATION_SCHEDULE.txt`, `TEST_CASE_BM/`, etc.
+
+To fix this **once per fresh clone, per project**:
+
+1. Open the codebase's solution
+   (`Maizsim_PhreeqcRM/maizsim07_PHREEQCRM.sln`) in Visual Studio.
+2. In Solution Explorer, right-click the **`2dMAIZSIM`** project →
+   **Properties**.
+3. **Configuration Properties → Debugging → Working Directory** → set to
+   `$(IntDir)`.
+4. Click OK.
+
+> **Why this isn't already set on a fresh clone**: Intel Fortran writes
+> debug-session settings (working directory, command-line args, env vars) to
+> a per-user file `2dMAIZSIM.vfproj.<WINDOWS-USERNAME>.user`. Those files
+> are excluded by `.gitignore` because they normally contain personal paths
+> and would conflict between machines. The `$(IntDir)` setting therefore
+> persists locally for you, but doesn't travel with the repo. Each new
+> clone needs the one-time fix above.
+
+A terminal / double-click launch (above) does **not** need this fix — the
+working-directory issue only affects F5/Ctrl+F5 from inside Visual Studio.
+
+---
+
 ## Building from source
 
 Each codebase ships its **own** Visual Studio solution and PhreeqcRM build
